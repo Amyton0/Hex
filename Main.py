@@ -192,9 +192,6 @@ is_computer_turn = False
 
 field = do_field(field_size, 400 - 14.5 * hex_size, 300 - hex_size / 2, hex_size)
 
-if mode == EASY and is_computer_turn:
-    random_move(field, computer_color)
-
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -206,10 +203,8 @@ while True:
                 if hex:
                     if hex.color is None:
                         hex.set_color(player_color)
-                        if mode == EASY:
+                        if mode == EASY or mode == HARD:
                             is_computer_turn = True
-                        if mode == HARD:
-                            pass
                         if mode == HOTSEAT:
                             player_color = change_color(player_color, color1, color2)
 
@@ -221,7 +216,7 @@ while True:
         if is_game_finished(field, color2):
             winning_text = winning_text(color2, mode, player_color, color1)
             status = END
-        if is_computer_turn:
+        if is_computer_turn and mode == EASY:
             random_move(field, computer_color)
             is_computer_turn = False
     if status == END:
