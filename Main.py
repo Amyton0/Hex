@@ -169,7 +169,7 @@ screen = pygame.display.set_mode(display_size)
 
 screen.fill((255, 255, 255))
 
-field_size = 3
+field_size = 11
 length_hexes_in_row = field_size * 2 + (field_size - 1)
 hex_size = display_size[0] / (length_hexes_in_row + (field_size + 7) // 2)
 
