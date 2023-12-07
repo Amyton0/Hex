@@ -66,6 +66,7 @@ def do_field(n, start_x, start_y, side_length):
                       side_length, (i, 0))
             field.append([hex])
             hex.add_neighbour(field[-2][0])
+            hex.add_neighbour(field[-2][1])
 
         for j in range(n - 1):
             hex = Hex(field[-1][-1].get_start_x_coord() + 3 * side_length / 2,
@@ -203,12 +204,14 @@ def get_winning_text(current_color, mode, player_color, color1):
 
 pygame.init()
 
-screen = pygame.display.set_mode((800, 600))
+display_size = (800, 600)
+screen = pygame.display.set_mode(display_size)
 
 screen.fill((255, 255, 255))
 
-hex_size = 20
 field_size = 11
+length_hexes_in_row = field_size * 2 + (field_size - 1)
+hex_size = display_size[0] / (length_hexes_in_row + (field_size + 7) // 2)
 
 START = 0
 CHOOSING_MODE = 1
@@ -252,9 +255,10 @@ choosing_size_text = font2.render("Размер поля:", True, WHITE)
 mode = EASY
 status = START
 
-is_computer_turn = True
+is_computer_turn = False
 
-field = do_field(field_size, 400 - 14.5 * hex_size, 300 - hex_size / 2, hex_size)
+field = do_field(field_size, display_size[0] / 2 - (length_hexes_in_row / 2 - 1.5) * hex_size,
+                 display_size[1] / 2 - hex_size * math.sqrt(3) / 2, hex_size)
 
 while True:
     for event in pygame.event.get():
@@ -312,7 +316,7 @@ while True:
             elif status == GAME:
                 hex = hex_containing_point(field, event.pos)
                 if hex:
-                    if hex.color is None:
+                    if hex.color is None and not is_computer_turn:
                         hex.set_color(player_color)
                         if mode == EASY or mode == HARD:
                             is_computer_turn = True
