@@ -47,6 +47,7 @@ class Hex:
                         return True
         return False
 
+
 def is_button(button_coordunates, width, height, event_pos):
     if button_coordunates[0]<event_pos[0]<button_coordunates[0]+width:
         if button_coordunates[1]<event_pos[1]<button_coordunates[1]+height:
@@ -309,14 +310,14 @@ while True:
                     field_size = 0
 
             elif status == GAME:
-                hex = hex_containing_point(field, event.pos)
-                if hex:
-                    if hex.color is None and not is_computer_turn:
-                        hex.set_color(player_color)
+                current_hex = hex_containing_point(field, event.pos)
+                if current_hex:
+                    if current_hex.color is None and not is_computer_turn:
+                        current_hex.set_color(player_color)
                         if mode == EASY or mode == HARD:
                             is_computer_turn = True
                             if mode == HARD:
-                                last_coordinates = find_coordinates(field, hex)
+                                last_coordinates = find_coordinates(field, current_hex)
                         if mode == HOTSEAT:
                             player_color = change_color(player_color, color1, color2)
             elif status == END:
@@ -335,7 +336,8 @@ while True:
                 else:
                     length_hexes_in_row = field_size * 2 + (field_size - 1)
                     hex_size = display_size[0] / (length_hexes_in_row + (field_size + 7) // 2)
-                    field = do_field(field_size, 400 - 14.5 * hex_size, 300 - hex_size / 2, hex_size)
+                    field = do_field(field_size, display_size[0] / 2 - (length_hexes_in_row / 2 - 1.5) * hex_size,
+                                     display_size[1] / 2 - hex_size * math.sqrt(3) / 2, hex_size)
                     status = GAME
                     screen.fill((255, 255, 255))
 
@@ -390,7 +392,6 @@ while True:
             is_computer_turn = False
         if is_computer_turn and status != END and mode == HARD:
             pygame.time.delay(450)
-
 
     if status == END:
         screen.fill((255, 255, 255))
