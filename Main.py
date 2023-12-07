@@ -209,10 +209,6 @@ screen = pygame.display.set_mode(display_size)
 
 screen.fill((255, 255, 255))
 
-field_size = 11
-length_hexes_in_row = field_size * 2 + (field_size - 1)
-hex_size = display_size[0] / (length_hexes_in_row + (field_size + 7) // 2)
-
 START = 0
 CHOOSING_MODE = 1
 CHOOSING_COLOR = 2
@@ -257,8 +253,7 @@ status = START
 
 is_computer_turn = False
 
-field = do_field(field_size, display_size[0] / 2 - (length_hexes_in_row / 2 - 1.5) * hex_size,
-                 display_size[1] / 2 - hex_size * math.sqrt(3) / 2, hex_size)
+field_size = 0
 
 while True:
     for event in pygame.event.get():
@@ -304,14 +299,14 @@ while True:
                     is_computer_turn = False
                     status = CHOOSING_SIZE
                     screen.fill((255, 255, 255))
-                    field = do_field(field_size, 400 - 14.5 * hex_size, 300 - hex_size / 2, hex_size)
+                    field_size = 0
                 if is_button((450, 310), 200, 100, event.pos):
                     color1 = computer_color
                     color2 = player_color
                     is_computer_turn = True
                     status = CHOOSING_SIZE
                     screen.fill((255, 255, 255))
-                    field = do_field(field_size, 400 - 14.5 * hex_size, 300 - hex_size / 2, hex_size)
+                    field_size = 0
 
             elif status == GAME:
                 hex = hex_containing_point(field, event.pos)
@@ -338,6 +333,9 @@ while True:
                     screen.blit(text, (400, 400))
                     pygame.display.flip()
                 else:
+                    length_hexes_in_row = field_size * 2 + (field_size - 1)
+                    hex_size = display_size[0] / (length_hexes_in_row + (field_size + 7) // 2)
+                    field = do_field(field_size, 400 - 14.5 * hex_size, 300 - hex_size / 2, hex_size)
                     status = GAME
                     screen.fill((255, 255, 255))
 
