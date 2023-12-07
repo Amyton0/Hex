@@ -378,15 +378,18 @@ while True:
         draw_field(field)
         pygame.display.flip()
         if is_game_finished(field, color1):
+            pygame.time.delay(1000)
             winning_text = get_winning_text(color1, mode, player_color, color1)
             status = END
         if is_game_finished(field, color2):
+            pygame.time.delay(1000)
             winning_text = get_winning_text(color2, mode, player_color, color1)
             status = END
         if is_computer_turn and status != END and mode == EASY:
             pygame.time.delay(450)
             random_move(field, computer_color)
             is_computer_turn = False
+
         if is_computer_turn and status != END and mode == HARD:
             pygame.time.delay(450)
 
