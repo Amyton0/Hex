@@ -47,9 +47,10 @@ class Hex:
                         return True
         return False
 
+
 def is_button(button_coordunates, width, height, event_pos):
-    if button_coordunates[0]<event_pos[0]<button_coordunates[0]+width:
-        if button_coordunates[1]<event_pos[1]<button_coordunates[1]+height:
+    if button_coordunates[0] < event_pos[0] < button_coordunates[0] + width:
+        if button_coordunates[1] < event_pos[1] < button_coordunates[1] + height:
             return True
     return False
 
@@ -66,6 +67,7 @@ def do_field(n, start_x, start_y, side_length):
                       side_length, (i, 0))
             field.append([hex])
             hex.add_neighbour(field[-2][0])
+            hex.add_neighbour(field[-2][1])
 
         for j in range(n - 1):
             hex = Hex(field[-1][-1].get_start_x_coord() + 3 * side_length / 2,
@@ -87,6 +89,7 @@ def find_coordinates(field, target_hex):
             if field[x][y] == target_hex:
                 return (x, y)
     return None
+
 
 def intermediate_strategy(state_game):
     computer_pieces = sum(row.count(1) for row in state_game)
@@ -201,14 +204,15 @@ def get_winning_text(current_color, mode, player_color, color1):
     return 'Победил игрок 2'
 
 
+def generate_text(font, text, color):
+    return font.render(text, True, color)
+
 pygame.init()
 
-screen = pygame.display.set_mode((800, 600))
+display_size = (800, 600)
+screen = pygame.display.set_mode(display_size)
 
 screen.fill((255, 255, 255))
-
-hex_size = 20
-field_size = 11
 
 START = 0
 CHOOSING_MODE = 1
@@ -234,27 +238,12 @@ WHITE = (250, 250, 250)
 font1 = pygame.font.Font(None, 200)
 font2 = pygame.font.Font(None, 90)
 
-hex_text = font1.render("HEX", True, WHITE)
-start_text = font2.render("Начать", True, WHITE)
-choosing_mode_text = font2.render("Выберите режим:", True, WHITE)
-choosing_color_text = font2.render("Выберите цвет", True, WHITE)
-choosing_queue_text = font2.render("Ходить:", True, WHITE)
-queue1_text = font2.render("Первым", True, WHITE)
-queue2_text = font2.render("Вторым", True, WHITE)
-blue_text = font2.render("Cиний", True, WHITE)
-red_text = font2.render("Красный", True, WHITE)
-easy_text = font2.render("EASY", True, WHITE)
-hard_text = font2.render("HARD", True, WHITE)
-hotseat_text = font2.render("2 PL", True, WHITE)
-restart_text = font2.render("Снова", True, WHITE)
-choosing_size_text = font2.render("Размер поля:", True, WHITE)
-
 mode = EASY
 status = START
 
-is_computer_turn = True
+is_computer_turn = False
 
-field = do_field(field_size, 400 - 14.5 * hex_size, 300 - hex_size / 2, hex_size)
+field_size = 0
 
 while True:
     for event in pygame.event.get():
@@ -268,56 +257,57 @@ while True:
                     screen.fill((255, 255, 255))
 
             elif status == CHOOSING_MODE:
-                if is_button((50, 310), 200, 100, event.pos):
-                    mode = EASY
-                    status = CHOOSING_COLOR
-                    screen.fill((255, 255, 255))
-                if is_button((300, 310), 200, 100, event.pos):
-                    mode = HARD
-                    status = CHOOSING_COLOR
-                    screen.fill((255, 255, 255))
-                if is_button((550, 310), 200, 100, event.pos):
-                    mode = HOTSEAT
+                is_button1 = is_button((50, 310), 200, 100, event.pos)
+                is_button2 = is_button((300, 310), 200, 100, event.pos)
+                is_button3 = is_button((550, 310), 200, 100, event.pos)
+                if is_button1 or is_button2 or is_button3:
+                    if is_button1:
+                        mode = EASY
+                    if is_button2:
+                        mode = HARD
+                    if is_button3:
+                        mode = HOTSEAT
                     status = CHOOSING_COLOR
                     screen.fill((255, 255, 255))
 
             elif status == CHOOSING_COLOR:
-                if is_button((50, 310), 200, 100, event.pos):
-                    player_color = 'blue'
-                    computer_color = 'red'
-                    status = CHOOSING_QUEUE
-                    screen.fill((255, 255, 255))
-                if is_button((450, 310), 200, 100, event.pos):
-                    player_color = 'red'
-                    computer_color = 'blue'
+                is_button1 = is_button((50, 310), 200, 100, event.pos)
+                is_button2 = is_button((450, 310), 200, 100, event.pos)
+                if is_button1 or is_button2:
+                    if is_button1:
+                        player_color = 'blue'
+                        computer_color = 'red'
+                    if is_button2:
+                        player_color = 'red'
+                        computer_color = 'blue'
                     status = CHOOSING_QUEUE
                     screen.fill((255, 255, 255))
 
             elif status == CHOOSING_QUEUE:
-                if is_button((50, 310), 200, 100, event.pos):
-                    color1 = player_color
-                    color2 = computer_color
-                    is_computer_turn = False
+                is_button1 = is_button((50, 310), 200, 100, event.pos)
+                is_button2 = is_button((450, 310), 200, 100, event.pos)
+                if is_button1 or is_button2:
+                    if is_button1:
+                        color1 = player_color
+                        color2 = computer_color
+                        is_computer_turn = False
+                    if is_button2:
+                        color1 = computer_color
+                        color2 = player_color
+                        is_computer_turn = True
                     status = CHOOSING_SIZE
                     screen.fill((255, 255, 255))
-                    field = do_field(field_size, 400 - 14.5 * hex_size, 300 - hex_size / 2, hex_size)
-                if is_button((450, 310), 200, 100, event.pos):
-                    color1 = computer_color
-                    color2 = player_color
-                    is_computer_turn = True
-                    status = CHOOSING_SIZE
-                    screen.fill((255, 255, 255))
-                    field = do_field(field_size, 400 - 14.5 * hex_size, 300 - hex_size / 2, hex_size)
+                    field_size = 0
 
             elif status == GAME:
-                hex = hex_containing_point(field, event.pos)
-                if hex:
-                    if hex.color is None:
-                        hex.set_color(player_color)
+                current_hex = hex_containing_point(field, event.pos)
+                if current_hex:
+                    if current_hex.color is None and not is_computer_turn:
+                        current_hex.set_color(player_color)
                         if mode == EASY or mode == HARD:
                             is_computer_turn = True
                             if mode == HARD:
-                                last_coordinates = find_coordinates(field, hex)
+                                last_coordinates = find_coordinates(field, current_hex)
                         if mode == HOTSEAT:
                             player_color = change_color(player_color, color1, color2)
             elif status == END:
@@ -331,47 +321,51 @@ while True:
                                  pygame.K_7, pygame.K_8, pygame.K_9]:
                     field_size = field_size * 10 + int(pygame.key.name(event.key))
                     text = font2.render(str(field_size), True, (0, 0, 0))
-                    screen.blit(text, (400, 400))
+                    screen.blit(text, (350, 300))
                     pygame.display.flip()
                 else:
+                    length_hexes_in_row = field_size * 2 + (field_size - 1)
+                    hex_size = display_size[0] / (length_hexes_in_row + (field_size + 7) // 2)
+                    field = do_field(field_size, display_size[0] / 2 - (length_hexes_in_row / 2 - 1.5) * hex_size,
+                                     display_size[1] / 2 - hex_size * math.sqrt(3) / 2, hex_size)
                     status = GAME
                     screen.fill((255, 255, 255))
 
     if status == START:
         pygame.draw.rect(screen, BLUE, (20, 70, 760, 150))
         pygame.draw.rect(screen, BLUE, (270, 310, 260, 100))
-        screen.blit(hex_text, (260, 80))
-        screen.blit(start_text, (285, 330))
+        screen.blit(generate_text(font1, "HEX", WHITE), (260, 80))
+        screen.blit(generate_text(font2, "Старт", WHITE), (300, 330))
 
     if status == CHOOSING_MODE:
         pygame.draw.rect(screen, BLUE, (20, 70, 760, 150))
-        screen.blit(choosing_mode_text, (120, 110))
+        screen.blit(generate_text(font2, "Выберите режим:", WHITE), (120, 110))
         pygame.draw.rect(screen, BLUE, (50, 310, 200, 100))
-        screen.blit(easy_text, (60, 340))
+        screen.blit(generate_text(font2, "EASY", WHITE), (60, 340))
         pygame.draw.rect(screen, BLUE, (300, 310, 200, 100))
-        screen.blit(hard_text, (310, 340))
+        screen.blit(generate_text(font2, "HARD", WHITE), (310, 340))
         pygame.draw.rect(screen, BLUE, (550, 310, 200, 100))
-        screen.blit(hotseat_text, (580, 340))
+        screen.blit(generate_text(font2, "2 PL", WHITE), (580, 340))
 
     if status == CHOOSING_COLOR:
         pygame.draw.rect(screen, BLUE, (20, 70, 760, 150))
-        screen.blit(choosing_color_text, (160, 110))
+        screen.blit(generate_text(font2, "Выберите цвет:", WHITE), (160, 110))
         pygame.draw.rect(screen, BLUE, (50, 310, 300, 100))
-        screen.blit(blue_text, (80, 340))
+        screen.blit(generate_text(font2, "Синий", WHITE), (80, 340))
         pygame.draw.rect(screen, BLUE, (450, 310, 300, 100))
-        screen.blit(red_text, (470, 340))
+        screen.blit(generate_text(font2, "Красный", WHITE), (470, 340))
 
     if status == CHOOSING_QUEUE:
         pygame.draw.rect(screen, BLUE, (20, 70, 760, 150))
-        screen.blit(choosing_queue_text, (300, 110))
+        screen.blit(generate_text(font2, "Ходить:", WHITE), (300, 110))
         pygame.draw.rect(screen, BLUE, (50, 310, 300, 100))
-        screen.blit(queue1_text, (80, 340))
+        screen.blit(generate_text(font2, "Первым", WHITE), (80, 340))
         pygame.draw.rect(screen, BLUE, (450, 310, 300, 100))
-        screen.blit(queue2_text, (470, 340))
+        screen.blit(generate_text(font2, "Вторым", WHITE), (470, 340))
 
     if status == CHOOSING_SIZE:
         pygame.draw.rect(screen, BLUE, (20, 70, 760, 150))
-        screen.blit(choosing_size_text, (300, 110))
+        screen.blit(generate_text(font2, "Введите размер поля:", WHITE), (50, 110))
 
     if status == GAME:
         draw_field(field)
@@ -389,12 +383,11 @@ while True:
         if is_computer_turn and status != END and mode == HARD:
             pygame.time.delay(450)
 
-
     if status == END:
         screen.fill((255, 255, 255))
         end_text = font2.render(winning_text, True, BLUE)
         screen.blit(end_text, (170, 220))
-        pygame.draw.rect(screen, BLUE, (270, 310, 260, 100))
-        screen.blit(restart_text, (285, 330))
+        pygame.draw.rect(screen, BLUE, (270, 310, 260, 150))
+        screen.blit(generate_text(font2, "Ещё раз:", WHITE), (285, 330))
 
     pygame.display.flip()
