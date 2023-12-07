@@ -48,9 +48,9 @@ class Hex:
         return False
 
 
-def is_button(button_coordunates, width, height, event_pos):
-    if button_coordunates[0] < event_pos[0] < button_coordunates[0] + width:
-        if button_coordunates[1] < event_pos[1] < button_coordunates[1] + height:
+def is_button(button_coordunates,  event_pos):
+    if button_coordunates[0] < event_pos[0] < button_coordunates[0] + button_coordunates[2]:
+        if button_coordunates[1] < event_pos[1] < button_coordunates[1] + button_coordunates[3]:
             return True
     return False
 
@@ -241,6 +241,13 @@ font2 = pygame.font.Font(None, 90)
 mode = EASY
 status = START
 
+button12_coordinates = (50, 310, 300, 100)
+button22_coordinates = (450, 310, 300, 100)
+
+button13_coordinates = (50, 310, 200, 100)
+button23_coordinates = (300, 310, 200, 100)
+button33_coordinates = (550, 310, 200, 100)
+
 is_computer_turn = False
 
 field_size = 0
@@ -252,14 +259,14 @@ while True:
             sys.exit()
         if event.type == pygame.MOUSEBUTTONDOWN:
             if status == START:
-                if is_button((270, 310), 250, 100, event.pos):
+                if is_button((270, 310, 250, 100), event.pos):
                     status = CHOOSING_MODE
                     screen.fill((255, 255, 255))
 
             elif status == CHOOSING_MODE:
-                is_button1 = is_button((50, 310), 200, 100, event.pos)
-                is_button2 = is_button((300, 310), 200, 100, event.pos)
-                is_button3 = is_button((550, 310), 200, 100, event.pos)
+                is_button1 = is_button(button13_coordinates, event.pos)
+                is_button2 = is_button(button23_coordinates, event.pos)
+                is_button3 = is_button(button33_coordinates, event.pos)
                 if is_button1 or is_button2 or is_button3:
                     if is_button1:
                         mode = EASY
@@ -271,8 +278,8 @@ while True:
                     screen.fill((255, 255, 255))
 
             elif status == CHOOSING_COLOR:
-                is_button1 = is_button((50, 310), 200, 100, event.pos)
-                is_button2 = is_button((450, 310), 200, 100, event.pos)
+                is_button1 = is_button(button12_coordinates, event.pos)
+                is_button2 = is_button(button22_coordinates, event.pos)
                 if is_button1 or is_button2:
                     if is_button1:
                         player_color = 'blue'
@@ -284,8 +291,8 @@ while True:
                     screen.fill((255, 255, 255))
 
             elif status == CHOOSING_QUEUE:
-                is_button1 = is_button((50, 310), 200, 100, event.pos)
-                is_button2 = is_button((450, 310), 200, 100, event.pos)
+                is_button1 = is_button(button12_coordinates, event.pos)
+                is_button2 = is_button(button22_coordinates, event.pos)
                 if is_button1 or is_button2:
                     if is_button1:
                         color1 = player_color
@@ -340,27 +347,27 @@ while True:
     if status == CHOOSING_MODE:
         pygame.draw.rect(screen, BLUE, (20, 70, 760, 150))
         screen.blit(generate_text(font2, "Выберите режим:", WHITE), (120, 110))
-        pygame.draw.rect(screen, BLUE, (50, 310, 200, 100))
+        pygame.draw.rect(screen, BLUE, button13_coordinates)
         screen.blit(generate_text(font2, "EASY", WHITE), (60, 340))
-        pygame.draw.rect(screen, BLUE, (300, 310, 200, 100))
+        pygame.draw.rect(screen, BLUE, button23_coordinates)
         screen.blit(generate_text(font2, "HARD", WHITE), (310, 340))
-        pygame.draw.rect(screen, BLUE, (550, 310, 200, 100))
+        pygame.draw.rect(screen, BLUE, button33_coordinates)
         screen.blit(generate_text(font2, "2 PL", WHITE), (580, 340))
 
     if status == CHOOSING_COLOR:
         pygame.draw.rect(screen, BLUE, (20, 70, 760, 150))
         screen.blit(generate_text(font2, "Выберите цвет:", WHITE), (160, 110))
-        pygame.draw.rect(screen, BLUE, (50, 310, 300, 100))
+        pygame.draw.rect(screen, BLUE, button12_coordinates)
         screen.blit(generate_text(font2, "Синий", WHITE), (80, 340))
-        pygame.draw.rect(screen, BLUE, (450, 310, 300, 100))
+        pygame.draw.rect(screen, BLUE, button22_coordinates)
         screen.blit(generate_text(font2, "Красный", WHITE), (470, 340))
 
     if status == CHOOSING_QUEUE:
         pygame.draw.rect(screen, BLUE, (20, 70, 760, 150))
         screen.blit(generate_text(font2, "Ходить:", WHITE), (300, 110))
-        pygame.draw.rect(screen, BLUE, (50, 310, 300, 100))
+        pygame.draw.rect(screen, BLUE, button12_coordinates)
         screen.blit(generate_text(font2, "Первым", WHITE), (80, 340))
-        pygame.draw.rect(screen, BLUE, (450, 310, 300, 100))
+        pygame.draw.rect(screen, BLUE, button22_coordinates)
         screen.blit(generate_text(font2, "Вторым", WHITE), (470, 340))
 
     if status == CHOOSING_SIZE:
@@ -386,8 +393,8 @@ while True:
     if status == END:
         screen.fill((255, 255, 255))
         end_text = font2.render(winning_text, True, BLUE)
-        screen.blit(end_text, (170, 220))
-        pygame.draw.rect(screen, BLUE, (270, 310, 260, 150))
-        screen.blit(generate_text(font2, "Ещё раз:", WHITE), (285, 330))
+        screen.blit(end_text, (190, 220))
+        pygame.draw.rect(screen, BLUE, (270, 310, 300, 100))
+        screen.blit(generate_text(font2, "Ещё раз!", WHITE), (285, 330))
 
     pygame.display.flip()
