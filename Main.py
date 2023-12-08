@@ -258,7 +258,7 @@ def generate_records_text(sizes):
                     text.append('    ' + 'Сложный')
                 else:
                     text.append('    ' + '2 игрока')
-                text.append('        Лучший результат — ' + str(min(game.records[size][mode])) + ' ходов')
+                text.append('        Лучший результат — ' + str(min(game.records[size][mode])))
                 are_records = True
     if are_records:
         return text
