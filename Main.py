@@ -68,6 +68,9 @@ class Game:
 
         self.is_computer_turn = False
 
+        self.is_left_wall = False
+        self.is_right_wall = False
+
         self.field_size = 0
 
         self.records = {}
@@ -80,6 +83,8 @@ class Game:
         self.is_computer_turn = False
         self.field_size = 0
         self.sizes = None
+        self.is_left_wall = False
+        self.is_right_wall = False
 
 
 def is_button(button_coordinates, event_pos):
@@ -188,88 +193,107 @@ def get_copy_field(field):
     return copy_field
 
 
-def is_win_turn(field, computer_color, player_color):
-    for x in range(len(field)):
-        for y in range(len(field)):
-            copy_field = get_copy_field(field)
+def is_win_turn():
+    for x in range(game.field_size):
+        for y in range(game.field_size):
+            copy_field = get_copy_field(game.field)
             if copy_field[x][y].color is None:
-                copy_field[x][y].set_color(computer_color)
-                if is_game_finished(copy_field, computer_color):
+                copy_field[x][y].set_color(game.computer_color)
+                if is_game_finished(copy_field, game.computer_color):
                     copy_field[x][y].color = None
                     return (x, y)
-                copy_field[x][y].color = player_color
-                if is_game_finished(copy_field, player_color):
+                copy_field[x][y].color = game.player_color
+                if is_game_finished(copy_field, game.player_color):
                     copy_field[x][y].color = None
                     return (x, y)
                 copy_field[x][y].color = None
     (x, y) = (-1, -1)
     return (x, y)
+'''
+def is_player_can_win():
+    if game.computer_color == 'blue':
+        for i in range(game.field_size):
+            if game.field[i][game.field_size-2].color == game.player_color:
+                return (i+1, game.field_size)
+            if game.field[i][2].color == game.player_color:
+                return (i, 0)
+    else:
+        for i in range(game.field_size):
+            if game.field[i][game.field_size-2].color == game.player_color:
+                return (i,game.field_size)
+            if game.field[i][2].color == game.player_color:
+                return (i,0)
+    return (-1, -1)
+'''
 
-
+def find_closer(line):
+    if game.computer_color == 'red':
+        closer_left = (-1, -1)
+        closer_right = (game.field_size, game.field_size)
+        for i in line:
+            if i[0]<closer_left[0]:
+                closer_left = i
+            if i[0]>closer_right[0]:
+                closer_right = i
+        return closer_left, closer_right
 def do_line(field, computer_color, line):
-    if line is not None:
-        if computer_color == 'red':
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0] - 1][i[1]].color is None:
-                        return (i[0] - 1, i[1])
+    try:
+        if line is not None:
+            if computer_color == 'red':
+                closer_left, closer_right = find_closer(line)
+                if field[closer_left[0] - 1][closer_left[1]].neighbours is None and game.is_left_wall == False:
+                    return (closer_left[0] - 1, closer_left[1])
+#проверять левого соседа
+                if field[closer_right[0] + 1][closer_right[1]].color is None and game.is_right_wall == False:
+                    return (closer_right[0] + 1, closer_right[1])
 
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0] + 1][i[1]].color is None:
-                        return (i[0] + 1, i[1])
 
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0] - 1][i[1] - 1].color is None:
-                        return (i[0] + 1, i[1] - 1)
+                if field[closer_right[0] - 1][closer_right[1] - 1].color is None:
+                    return (closer_right[0] + 1, closer_right[1] - 1)
 
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0] - 1][i[1] + 1].color is None:
-                        return (i[0] + 1, i[1] + 1)
 
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0] + 1][i[1] - 1].color is None:
-                        return (i[0] + 1, i[1] - 1)
+                if field[closer_right[0] - 1][closer_right[1] + 1].color is None:
+                    return (closer_right[0] + 1, closer_right[1] + 1)
 
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0] + 1][i[1] + 1].color is None:
-                        return (i[0] + 1, i[1] + 1)
+                if field[closer_right[0] + 1][closer_right[1] - 1].color is None:
+                    return (closer_right[0] + 1, closer_right[1] - 1)
 
-        if computer_color == 'blue':
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0]][i[1] - 1].color is None:
-                        return (i[0], i[1] - 1)
+                for i in reversed(line):
+                        if field[i[0] + 1][i[1] + 1].color is None:
+                            return (i[0] + 1, i[1] + 1)
 
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0]][i[1] + 1].color is None:
-                        return (i[0], i[1] + 1)
+            if computer_color == 'blue':
+                for i in reversed(line):
 
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0] - 1][i[1] - 1].color is None:
-                        return (i[0] - 1, i[1] - 1)
+                        if field[i[0]][i[1] - 1].color is None:
+                            return (i[0], i[1] - 1)
 
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0] - 1][i[1] + 1].color is None:
-                        return (i[0] - 1, i[1] + 1)
+                for i in reversed(line):
 
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0] + 1][i[1] - 1].color is None:
-                        return (i[0] + 1, i[1] - 1)
+                        if field[i[0]][i[1] + 1].color is None:
+                            return (i[0], i[1] + 1)
 
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0] + 1][i[1] + 1].color is None:
-                        return (i[0] + 1, i[1] + 1)
+                for i in reversed(line):
 
+                        if field[i[0] - 1][i[1] - 1].color is None:
+                            return (i[0] - 1, i[1] - 1)
+
+                for i in reversed(line):
+
+                        if field[i[0] - 1][i[1] + 1].color is None:
+                            return (i[0] - 1, i[1] + 1)
+
+                for i in reversed(line):
+
+                        if field[i[0] + 1][i[1] - 1].color is None:
+                            return (i[0] + 1, i[1] - 1)
+
+                for i in reversed(line):
+
+                        if field[i[0] + 1][i[1] + 1].color is None:
+                            return (i[0] + 1, i[1] + 1)
+    except IndexError:
+        return (-1, -1)
     return (-1, -1)
 
 
@@ -568,18 +592,53 @@ while True:
 
         if game.is_computer_turn and game.status != END and game.mode == HARD:
             pygame.time.delay(450)
-            coord = is_win_turn(game.field, game.computer_color, game.player_color)
+            coord = is_win_turn()
             coord1 = do_line(game.field, game.computer_color, line)
             if coord != (-1, -1):
                 game.field[coord[0]][coord[1]].set_color(game.computer_color)
+                if game.computer_color == 'red':
+                    if coord[0] == 0:
+                        game.is_left_wall = True
+                    if coord[0] == game.field_size:
+                        game.is_right_wall = True
+                if game.computer_color == 'blue':
+                    if coord[1] == 0:
+                        game.is_left_wall = True
+                    if coord[1] == game.field_size:
+                        game.is_right_wall = True
+                if coord[0] == 0 or coord[1] == 0 or coord[0] == game.field_size or coord[1] == game.field_size:
+                    game.is_wall = True
                 line.append(coord)
             elif coord1 != (-1, -1):
                 game.field[coord1[0]][coord1[1]].set_color(game.computer_color)
+                if game.computer_color == 'red':
+                    if coord1[0] == 0:
+                        game.is_left_wall = True
+                    if coord1[0] == game.field_size:
+                        game.is_right_wall = True
+                if game.computer_color == 'blue':
+                    if coord1[1] == 0:
+                        game.is_left_wall = True
+                    if coord1[1] == game.field_size:
+                        game.is_right_wall = True
                 line.append(coord1)
-
             else:
                 last_coord = random_coordinates(game.field)
+                if game.computer_color == 'red':
+                    if last_coord[0] == 0:
+                        game.is_left_wall = True
+                    if last_coord[0] == game.field_size:
+                        game.is_right_wall = True
+                if game.computer_color == 'blue':
+                    if last_coord[1] == 0:
+                        game.is_left_wall = True
+                    if last_coord[1] == game.field_size:
+                        game.is_right_wall = True
                 line.append(last_coord)
+                if game.field[game.field_size//2][game.field_size//2].color is None:
+                    last_coord = (game.field_size // 2, game.field_size // 2)
+                game.is_left_wall = False
+                game.is_right_wall = False
                 game.field[last_coord[0]][last_coord[1]].set_color(game.computer_color)
             game.is_computer_turn = False
 
