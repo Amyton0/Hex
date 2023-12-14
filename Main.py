@@ -4,6 +4,7 @@ import sys
 import random
 import pickle
 import os.path
+import copy
 
 
 class Hex:
@@ -74,12 +75,76 @@ class Game:
         self.sizes = None
         self.winning_text = ''
 
+        self.field = []
+        self.hex_size = 0
+
+        self.was_undo = False
+
     def reset(self):
         self.records_i = 0
         self.number_of_steps = 0
         self.is_computer_turn = False
         self.field_size = 0
         self.sizes = None
+
+        self.was_undo = False
+
+        undo_stack.clear()
+        redo_stack.clear()
+
+    def undo(self):
+        if len(undo_stack) != 0:
+            redo_stack.append(copy.copy(game))
+            self.was_undo = True
+            return undo_stack.pop()
+        else:
+            return game
+
+    def redo(self):
+        if len(redo_stack) != 0:
+            undo_stack.append(copy.copy(game))
+            return redo_stack.pop()
+        else:
+            return game
+    
+    def add_move(self):
+        if self.was_undo:
+            undo_stack.clear()
+            self.was_undo = False
+        undo_stack.append(copy.copy(game))
+        redo_stack.clear()
+
+    def __copy__(self):
+        new_game = Game()
+
+        new_game.player_color = self.player_color
+        new_game.computer_color = self.computer_color
+
+        new_game.color1 = self.color1
+        new_game.color2 = self.color2
+        new_game.chosen_color = self.chosen_color
+
+        new_game.records_i = self.records_i
+
+        new_game.mode = self.mode
+        new_game.status = self.status
+
+        new_game.number_of_steps = self.number_of_steps
+
+        new_game.is_computer_turn = self.is_computer_turn
+
+        new_game.field_size = self.field_size
+
+        new_game.records = self.records
+        new_game.sizes = self.sizes
+        new_game.winning_text = self.winning_text
+
+        new_game.field = copy.deepcopy(self.field)
+        new_game.hex_size = self.hex_size
+
+        new_game.was_undo = self.was_undo
+
+        return new_game
 
 
 def is_button(button_coordunates,  event_pos):
@@ -280,6 +345,22 @@ def load_game():
         return Game()
 
 
+def draw_button_with_arrow(button, orientation):
+    pygame.draw.rect(screen, BLUE, button, 2)
+    if orientation == 0:
+        pygame.draw.line(screen, BLUE, (button[0] + 20, button[1] + button[3] / 2),
+                         (button[0] + button[2] - 10, button[1] + button[3] / 2), 5)
+        pygame.draw.polygon(screen, BLUE, ((button[0] + 25, button[1] + 15),
+                                           (button[0] + 10, button[1] + button[3] / 2),
+                                           (button[0] + 25, button[1] + button[3] - 15)))
+    else:
+        pygame.draw.line(screen, BLUE, (button[0] + 10, button[1] + button[3] / 2),
+                         (button[0] + button[2] - 20, button[1] + button[3] / 2), 5)
+        pygame.draw.polygon(screen, BLUE, ((button[0] + button[2] - 25, button[1] + 15),
+                                           (button[0] + button[2] - 10, button[1] + button[3] / 2),
+                                           (button[0] + button[2] - 25, button[1] + button[3] - 15)))
+
+
 pygame.init()
 
 display_size = (800, 600)
@@ -316,6 +397,8 @@ first_record_coordinates = (100, 100)
 start_button_coordinates = (270, 310, 250, 100)
 records_button_coordinates = (270, 450, 250, 100)
 corner_button_coordinates = (650, 5, 145, 50)
+undo_button_coordinates = (5, 5, 70, 50)
+redo_button_coordinates = (80, 5, 70, 50)
 
 button12_coordinates = (50, 310, 300, 100)
 button22_coordinates = (450, 310, 300, 100)
@@ -323,6 +406,9 @@ button22_coordinates = (450, 310, 300, 100)
 button13_coordinates = (50, 310, 200, 100)
 button23_coordinates = (300, 310, 200, 100)
 button33_coordinates = (550, 310, 200, 100)
+
+undo_stack = []
+redo_stack = []
 
 game = load_game()
 
@@ -394,6 +480,7 @@ while True:
                 current_hex = hex_containing_point(game.field, event.pos)
                 if current_hex:
                     if current_hex.color is None and not game.is_computer_turn:
+                        game.add_move()
                         current_hex.set_color(game.player_color)
                         if game.mode == EASY or game.mode == HARD:
                             game.is_computer_turn = True
@@ -402,6 +489,10 @@ while True:
                         if game.mode == HOTSEAT:
                             game.player_color = change_color(game.player_color, game.color1, game.color2)
                         game.number_of_steps += 1
+                elif is_button(undo_button_coordinates, event.pos):
+                    game = game.undo()
+                elif is_button(redo_button_coordinates, event.pos):
+                    game = game.redo()
 
             elif game.status == END:
                 if (270, 310) < event.pos < (530, 410):
@@ -415,6 +506,8 @@ while True:
                 if is_button(corner_button_coordinates, event.pos):
                     game.status = START
                     game.reset()
+                    undo_stack = []
+                    redo_stack = []
 
                 if event.button == 4:
                     if game.records_i > 0:
@@ -483,6 +576,9 @@ while True:
             screen.blit(text, (350, 300))
 
     elif game.status == GAME:
+        draw_button_with_arrow(undo_button_coordinates, 0)
+        draw_button_with_arrow(redo_button_coordinates, 1)
+
         draw_field(game.field)
         screen.blit(generate_text(font2, str(game.number_of_steps), BLUE), (720, 10))
         pygame.display.flip()
