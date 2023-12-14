@@ -82,9 +82,9 @@ class Game:
         self.sizes = None
 
 
-def is_button(button_coordunates,  event_pos):
-    if button_coordunates[0] < event_pos[0] < button_coordunates[0] + button_coordunates[2]:
-        if button_coordunates[1] < event_pos[1] < button_coordunates[1] + button_coordunates[3]:
+def is_button(button_coordinates, event_pos):
+    if button_coordinates[0] < event_pos[0] < button_coordinates[0] + button_coordinates[2]:
+        if button_coordinates[1] < event_pos[1] < button_coordinates[1] + button_coordinates[3]:
             return True
     return False
 
@@ -123,33 +123,6 @@ def find_coordinates(field, target_hex):
             if field[x][y] == target_hex:
                 return (x, y)
     return None
-
-
-def intermediate_strategy(state_game):
-    computer_pieces = sum(row.count(1) for row in state_game)
-    opponent_pieces = sum(row.count(-1) for row in state_game)
-
-    if computer_pieces > opponent_pieces:
-        for i in range(11):
-            for j in range(11):
-                if state_game[i][j] == 0:
-                    for di, dj in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]:
-                        ni, nj = i + di, j + dj
-                        if 0 <= ni < 11 and 0 <= nj < 11 and state_game[ni][nj] == 1:
-                            return (i, j)
-    else:
-        for i in range(11):
-            for j in range(11):
-                if state_game[i][j] == 0:
-                    for di, dj in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]:
-                        ni, nj = i + di, j + dj
-                        if 0 <= ni < 11 and 0 <= nj < 11 and state_game[ni][nj] == -1:
-                            return (i, j)
-
-    for i in range(11):
-        for j in range(11):
-            if state_game[i][j] == 0:
-                return (i, j)
 
 
 def draw_field(field):
@@ -205,6 +178,99 @@ def is_game_finished(field, color):
                 if hex.is_path():
                     return True
     return False
+
+
+def get_copy_field(field):
+    copy_field = [row[:] for row in field]
+    for x in range(len(field)):
+        for y in range(len(field)):
+            copy_field[x][y] = field[x][y]
+    return copy_field
+
+
+def is_win_turn(field, computer_color, player_color):
+    for x in range(len(field)):
+        for y in range(len(field)):
+            copy_field = get_copy_field(field)
+            if copy_field[x][y].color is None:
+                copy_field[x][y].set_color(computer_color)
+                if is_game_finished(copy_field, computer_color):
+                    copy_field[x][y].color = None
+                    return (x, y)
+                copy_field[x][y].color = player_color
+                if is_game_finished(copy_field, player_color):
+                    copy_field[x][y].color = None
+                    return (x, y)
+                copy_field[x][y].color = None
+    (x, y) = (-1, -1)
+    return (x, y)
+
+
+def do_line(field, computer_color, line):
+    if line is not None:
+        if computer_color == 'red':
+            for i in reversed(line):
+                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                    if field[i[0] - 1][i[1]].color is None:
+                        return (i[0] - 1, i[1])
+
+            for i in reversed(line):
+                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                    if field[i[0] + 1][i[1]].color is None:
+                        return (i[0] + 1, i[1])
+
+            for i in reversed(line):
+                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                    if field[i[0] - 1][i[1] - 1].color is None:
+                        return (i[0] + 1, i[1] - 1)
+
+            for i in reversed(line):
+                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                    if field[i[0] - 1][i[1] + 1].color is None:
+                        return (i[0] + 1, i[1] + 1)
+
+            for i in reversed(line):
+                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                    if field[i[0] + 1][i[1] - 1].color is None:
+                        return (i[0] + 1, i[1] - 1)
+
+            for i in reversed(line):
+                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                    if field[i[0] + 1][i[1] + 1].color is None:
+                        return (i[0] + 1, i[1] + 1)
+
+        if computer_color == 'blue':
+            for i in reversed(line):
+                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                    if field[i[0]][i[1] - 1].color is None:
+                        return (i[0], i[1] - 1)
+
+            for i in reversed(line):
+                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                    if field[i[0]][i[1] + 1].color is None:
+                        return (i[0], i[1] + 1)
+
+            for i in reversed(line):
+                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                    if field[i[0] - 1][i[1] - 1].color is None:
+                        return (i[0] - 1, i[1] - 1)
+
+            for i in reversed(line):
+                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                    if field[i[0] - 1][i[1] + 1].color is None:
+                        return (i[0] - 1, i[1] + 1)
+
+            for i in reversed(line):
+                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                    if field[i[0] + 1][i[1] - 1].color is None:
+                        return (i[0] + 1, i[1] - 1)
+
+            for i in reversed(line):
+                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                    if field[i[0] + 1][i[1] + 1].color is None:
+                        return (i[0] + 1, i[1] + 1)
+
+    return (-1, -1)
 
 
 def random_coordinates(field):
@@ -324,6 +390,9 @@ button13_coordinates = (50, 310, 200, 100)
 button23_coordinates = (300, 310, 200, 100)
 button33_coordinates = (550, 310, 200, 100)
 
+last_coord = (0, 0)
+line = []
+
 game = load_game()
 
 while True:
@@ -397,8 +466,6 @@ while True:
                         current_hex.set_color(game.player_color)
                         if game.mode == EASY or game.mode == HARD:
                             game.is_computer_turn = True
-                            if game.mode == HARD:
-                                last_coordinates = find_coordinates(game.field, current_hex)
                         if game.mode == HOTSEAT:
                             game.player_color = change_color(game.player_color, game.color1, game.color2)
                         game.number_of_steps += 1
@@ -501,6 +568,20 @@ while True:
 
         if game.is_computer_turn and game.status != END and game.mode == HARD:
             pygame.time.delay(450)
+            coord = is_win_turn(game.field, game.computer_color, game.player_color)
+            coord1 = do_line(game.field, game.computer_color, line)
+            if coord != (-1, -1):
+                game.field[coord[0]][coord[1]].set_color(game.computer_color)
+                line.append(coord)
+            elif coord1 != (-1, -1):
+                game.field[coord1[0]][coord1[1]].set_color(game.computer_color)
+                line.append(coord1)
+
+            else:
+                last_coord = random_coordinates(game.field)
+                line.append(last_coord)
+                game.field[last_coord[0]][last_coord[1]].set_color(game.computer_color)
+            game.is_computer_turn = False
 
     elif game.status == END:
         if game.is_computer_turn or game.mode == HOTSEAT:
@@ -530,7 +611,7 @@ while True:
                 if game.records_i + i >= len(text):
                     break
                 screen.blit(generate_text(font4, text[game.records_i + i], BLUE),
-                                          (first_record_coordinates[0], first_record_coordinates[1] + i * 40))
+                            (first_record_coordinates[0], first_record_coordinates[1] + i * 40))
         else:
             screen.blit(generate_text(font4, 'Рекордов пока нет', BLUE), first_record_coordinates)
 
