@@ -2,6 +2,7 @@ from Main import is_win_turn
 from Main import do_field
 from Main import is_game_finished
 
+
 field = do_field(5, 400 - 14.5 * 40, 300 - 40 / 2, 40)
 
 
