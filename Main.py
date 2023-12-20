@@ -209,67 +209,71 @@ def is_win_turn(field, computer_color, player_color):
 def do_line(field, computer_color, line):
     if line is not None:
         if computer_color == 'red':
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0] - 1][i[1]].color is None:
-                        return (i[0] - 1, i[1])
+            try:
+                for i in reversed(line):
+                    if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                        if field[i[0] - 1][i[1]].color is None:
+                            return (i[0] - 1, i[1])
 
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0] + 1][i[1]].color is None:
-                        return (i[0] + 1, i[1])
+                for i in reversed(line):
+                    if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                        if field[i[0] + 1][i[1]].color is None:
+                            return (i[0] + 1, i[1])
 
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0] - 1][i[1] - 1].color is None:
-                        return (i[0] + 1, i[1] - 1)
+                for i in reversed(line):
+                    if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                        if field[i[0] - 1][i[1] - 1].color is None:
+                            return (i[0] + 1, i[1] - 1)
 
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0] - 1][i[1] + 1].color is None:
-                        return (i[0] + 1, i[1] + 1)
+                for i in reversed(line):
+                    if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                        if field[i[0] - 1][i[1] + 1].color is None:
+                            return (i[0] + 1, i[1] + 1)
 
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0] + 1][i[1] - 1].color is None:
-                        return (i[0] + 1, i[1] - 1)
+                for i in reversed(line):
+                    if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                        if field[i[0] + 1][i[1] - 1].color is None:
+                            return (i[0] + 1, i[1] - 1)
 
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0] + 1][i[1] + 1].color is None:
-                        return (i[0] + 1, i[1] + 1)
-
+                for i in reversed(line):
+                    if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                        if field[i[0] + 1][i[1] + 1].color is None:
+                            return (i[0] + 1, i[1] + 1)
+            except:
+                return -1, -1
         if computer_color == 'blue':
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0]][i[1] - 1].color is None:
-                        return (i[0], i[1] - 1)
+            try:
+                for i in reversed(line):
+                    if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                        if field[i[0]][i[1] - 1].color is None:
+                            return (i[0], i[1] - 1)
 
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0]][i[1] + 1].color is None:
-                        return (i[0], i[1] + 1)
+                for i in reversed(line):
+                    if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                        if field[i[0]][i[1] + 1].color is None:
+                            return (i[0], i[1] + 1)
 
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0] - 1][i[1] - 1].color is None:
-                        return (i[0] - 1, i[1] - 1)
+                for i in reversed(line):
+                    if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                        if field[i[0] - 1][i[1] - 1].color is None:
+                            return (i[0] - 1, i[1] - 1)
 
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0] - 1][i[1] + 1].color is None:
-                        return (i[0] - 1, i[1] + 1)
+                for i in reversed(line):
+                    if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                        if field[i[0] - 1][i[1] + 1].color is None:
+                            return (i[0] - 1, i[1] + 1)
 
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0] + 1][i[1] - 1].color is None:
-                        return (i[0] + 1, i[1] - 1)
+                for i in reversed(line):
+                    if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                        if field[i[0] + 1][i[1] - 1].color is None:
+                            return (i[0] + 1, i[1] - 1)
 
-            for i in reversed(line):
-                if 0 < i[0] < len(field) and 0 < i[1] < len(field):
-                    if field[i[0] + 1][i[1] + 1].color is None:
-                        return (i[0] + 1, i[1] + 1)
-
+                for i in reversed(line):
+                    if 0 < i[0] < len(field) and 0 < i[1] < len(field):
+                        if field[i[0] + 1][i[1] + 1].color is None:
+                            return (i[0] + 1, i[1] + 1)
+            except:
+                return -1, -1
     return (-1, -1)
 
 
@@ -576,9 +580,10 @@ while True:
             elif coord1 != (-1, -1):
                 game.field[coord1[0]][coord1[1]].set_color(game.computer_color)
                 line.append(coord1)
-
             else:
                 last_coord = random_coordinates(game.field)
+                while game.field[last_coord[0]][last_coord[1]].color is not None:
+                    last_coord = random_coordinates(game.field)
                 line.append(last_coord)
                 game.field[last_coord[0]][last_coord[1]].set_color(game.computer_color)
             game.is_computer_turn = False
